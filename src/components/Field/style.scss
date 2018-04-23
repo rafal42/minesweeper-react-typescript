@@ -1,0 +1,43 @@
+.field {
+  display: inline-flex;
+  border: 1px solid #e2e2e2;
+  width: 25px;
+  height: 25px;
+  background: #f4f4f4;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0,0,0,0);
+
+  cursor: pointer;
+}
+
+.open {
+  color: #000;
+  background: #fff;
+  cursor: initial;
+
+  &.bombs-1 {
+    color: #6189f4;
+  }
+
+  &.bombs-2 {
+    color: #1ba34f;
+  }
+
+  &.bombs-3 {
+    color: #6c1aa2;
+  }
+
+  &.bombs-4 {
+    color: #d18c04;
+  }
+
+  &.bombs-5 {
+    color: #d14b03;
+  }
+
+  &.bombs-6, &.bombs-7, &.bombs-8 {
+    color: #d11402;
+  }
+}
+
