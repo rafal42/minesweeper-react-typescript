@@ -1,5 +1,6 @@
 {
   "name": "minesweeper-react-ts",
+  "homepage": "http://rafal42.github.io/minesweeper-react-ts",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -21,7 +22,9 @@
     "start": "npm-run-all -p watch-css start-ts",
     "build": "npm-run-all build-css build-ts",
     "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
+    "eject": "react-scripts-ts eject",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d build"
   },
   "devDependencies": {
     "@types/node": "^9.6.6",

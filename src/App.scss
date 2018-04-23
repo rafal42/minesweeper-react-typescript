@@ -1,0 +1,30 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+#root {
+  display: flex;
+  flex-flow: column;
+}
+
+#controls {
+  display: flex;
+  margin: 20px auto;
+  justify-content: center;
+
+  & > * {
+    margin: 0 10px;
+  }
+}
+
+#fields-container {
+  margin: auto;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  display: inline-block;
+}

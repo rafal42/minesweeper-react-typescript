@@ -1,26 +1,70 @@
-import { IField } from './components/Field/interface';
+import { flatten } from 'lodash';
+import { BOMBS_COUNT } from './constants';
+import { IField, IVector2d } from './types';
 
-export function buildField ({ onClick, x, y } : { onClick: Function, x: number, y: number }) : IField {
+function getIndicesForPosition({ x, y } : IVector2d): IVector2d | undefined {
+  const container = document.getElementById('fields-container');
+
+  if(container) {
+    const basePosition = container.getBoundingClientRect();
+
+    return {
+      x: Math.floor((x - basePosition.left) / 25),
+      y: Math.floor((y - basePosition.top) / 25)
+    };
+  }
+
+  return undefined;
+}
+
+export function flag(board: IField[][], mousePosition: IVector2d): { board: IField[][], flagCountDiff: number } {
+  const indices = getIndicesForPosition(mousePosition);
+  const buildResult = (resultBoard: IField[][], flagCountDiff = 0) => ({ board: resultBoard, flagCountDiff });
+
+  if (indices) {
+    const { x, y } = indices;
+
+    if (safeDeepAccess(board, y, x) !== undefined) {
+      const boardCopy = Object.assign([], board);
+
+      boardCopy[y][x].hasFlag = !boardCopy[y][x].hasFlag;
+
+      return buildResult(boardCopy, boardCopy[y][x].hasFlag ? -1 : +1);
+    }
+  }
+
+  return buildResult(board);
+}
+
+function buildField ({ onClick, x, y } : { onClick: (x: number, y: number) => void, x: number, y: number }) : IField {
   return {
-    x: x,
-    y: y,
-    hasBomb: Math.random() > 0.5,
+    hasBomb: false,
     hasFlag: false,
     isOpen: false,
     onClick: () => onClick(x, y),
+    x,
+    y,
   };
 };
 
-export const buildBoard = (onClick : Function): IField[][] => {
+export const buildBoard = (onClick : () => void): IField[][] => {
   const bf = (x: number, y: number) => buildField({ onClick, x, y });
-  const fields = [
-    [bf(0, 0), bf(1, 0), bf(2, 0), bf(3, 0), bf(4, 0), bf(5, 0)],
-    [bf(0, 1), bf(1, 1), bf(2, 1), bf(3, 1), bf(4, 1), bf(5, 1)],
-    [bf(0, 2), bf(1, 2), bf(2, 2), bf(3, 2), bf(4, 2), bf(5, 2)],
-    [bf(0, 3), bf(1, 3), bf(2, 3), bf(3, 3), bf(4, 3), bf(5, 3)],
-    [bf(0, 4), bf(1, 4), bf(2, 4), bf(3, 4), bf(4, 4), bf(5, 4)],
-    [bf(0, 5), bf(1, 5), bf(2, 5), bf(3, 5), bf(4, 5), bf(5, 5)],
-  ];
+  const fields =
+    [...Array(20).keys()].map(
+      (outerKey) => [...Array(20).keys()].map(innerKey => bf(innerKey, outerKey))
+    )
+
+  const getRandom = () => [Math.round(Math.random() * 19), Math.round(Math.random() * 19)];
+
+  let minesPlaced = 0;
+  while(minesPlaced < BOMBS_COUNT) {
+    const [y, x] = getRandom();
+
+    if (!fields[y][x].hasBomb && neighboringBombs(fields, x, y) <= 6) {
+      fields[y][x].hasBomb = true;
+      minesPlaced++;
+    }
+  }
 
   fields.forEach(row => (
     row.forEach(field => field.neighboringBombCount = neighboringBombs(fields, field.x, field.y))
@@ -29,7 +73,7 @@ export const buildBoard = (onClick : Function): IField[][] => {
   return fields;
 };
 
-export function unsafeAccess(board: any[][], y: number, x: number) {
+function safeDeepAccess(board: any[][], y: number, x: number) {
   try {
     return board[y][x];
   } catch {
@@ -37,7 +81,7 @@ export function unsafeAccess(board: any[][], y: number, x: number) {
   }
 }
 
-export function getNeighborVectors(x: number, y: number): number[][] {
+function getNeighborVectors(x: number, y: number): number[][] {
   return [
     ...getNondiagonalNeighborVectors(x, y),
     [y - 1, x - 1],
@@ -56,35 +100,27 @@ function getNondiagonalNeighborVectors(x: number, y: number) : number[][] {
   ];
 }
 
-export function neighboringBombs(board: IField[][], x: number, y: number) {
+function neighboringBombs(board: IField[][], x: number, y: number): number {
   const neighborVectors = getNeighborVectors(x, y);
 
   return neighborVectors.filter(([ny, nx]) => {
-    const neighborField = unsafeAccess(board, ny, nx);
+    const neighborField = safeDeepAccess(board, ny, nx);
     return neighborField && neighborField.hasBomb;
   }).length;
 }
 
 export function getNeighborsToOpen(board: IField[][], x: number, y: number, visited: number[][] = [], deepCall = false): number[][] {
   const neighborVectors = getNondiagonalNeighborVectors(x, y).filter(([ny, nx]) => {
-    const ua = unsafeAccess(board, ny, nx);
-    return ua !== undefined && !ua.hasBomb;
+    const ua = safeDeepAccess(board, ny, nx);
+    return ua && !ua.hasBomb;
   });
-
-  let toOmit = [
-    ...visited,
-    ...neighborVectors
-  ];
 
   const neighborVectorsWithOmitted = neighborVectors.filter(
     ([ny, nx]) => visited.find(([vy, vx]) => vy === ny && vx === nx) === undefined
   );
 
-  let result = [
-    ...neighborVectorsWithOmitted,
-  ];
 
-  if (board[y][x].isOpen) return [];
+  if (board[y][x].isOpen) { return []; }
 
   if (board[y][x].hasBomb && deepCall) {
     return [];
@@ -92,17 +128,27 @@ export function getNeighborsToOpen(board: IField[][], x: number, y: number, visi
 
   if (board[y][x].hasBomb && !deepCall) {
     // todo: Lose game here
-    return [[y, x]];
+    return flatten(board.map(
+      row => row.filter(field => field.hasBomb).map(field =>
+        [field.y, field.x]
+      )
+    ));
   }
 
-  result.push([y, x]);
+  let toOmit = [
+    ...visited,
+    ...neighborVectors,
+    [y, x]
+  ];
+
+  let result : number[][] = [[y, x]];
 
   neighborVectorsWithOmitted.forEach(([ny, nx]) => {
-    const neighborsDeep = getNeighborsToOpen(board, ny, nx, toOmit, true);
+    const neighborsDeep = getNeighborsToOpen(board, nx, ny, toOmit, true);
     toOmit = [
       ...toOmit,
       ...neighborsDeep,
-      [y, x]
+      [ny, nx],
     ];
     result = [
       ...result,
@@ -113,13 +159,12 @@ export function getNeighborsToOpen(board: IField[][], x: number, y: number, visi
   return result;
 }
 
-export function open(board: IField[][], x: number, y: number, visited: Object[] = []): IField[][] {
+export function open(board: IField[][], x: number, y: number): IField[][] {
   const toOpen = getNeighborsToOpen(board, x, y, [], false);
 
-
   const boardCopy = Object.assign([], board);
-  toOpen.forEach(([y, x]) => {
-    boardCopy[y][x].isOpen = true;
+  toOpen.forEach(([oy, ox]) => {
+    boardCopy[oy][ox].isOpen = true;
   })
 
   return boardCopy;

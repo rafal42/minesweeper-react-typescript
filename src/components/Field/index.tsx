@@ -1,21 +1,36 @@
-import * as React from 'react';
 import * as cx from 'classnames';
+import * as React from 'react';
+import { IField } from '../../types';
 import './style.css';
-import { IField } from './interface';
 
+const getContent = ({ isOpen, hasBomb, neighboringBombCount, hasFlag } :
+  { isOpen?: boolean, hasBomb: boolean, neighboringBombCount?: number, hasFlag: boolean}) => {
+  if (isOpen) {
+    if (hasBomb) {
+      return '💣';
+    }
 
-const FieldComponent = ({ hasFlag, hasBomb, isOpen, onClick, neighboringBombCount } : IField) => (
+    return neighboringBombCount;
+  }
+
+  if (hasFlag) {
+     return '🚩';
+  }
+
+  return 'X';
+}
+
+const FieldComponent = ({ hasFlag, hasBomb, isOpen, neighboringBombCount, ...rest } : IField) => (
   <div
     className={cx('field', {
-      'open': isOpen,
+      'bomb': hasBomb,
       [`bombs-${neighboringBombCount}`]: !hasBomb,
+      'flag': hasFlag,
+      'open': isOpen
     })}
-    onClick={onClick}
+    {...rest}
   >
-    {isOpen ? (
-        hasFlag ? '🚩' :
-          hasBomb ? '💣' : neighboringBombCount
-      ) : 'X'}
+    {getContent({ isOpen, hasBomb, neighboringBombCount, hasFlag })}
   </div>
 );
 
