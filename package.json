@@ -1,6 +1,6 @@
 {
-  "name": "minesweeper-react-ts",
-  "homepage": "http://rafal42.github.io/minesweeper-react-ts",
+  "name": "minesweeper-react-typescript",
+  "homepage": "http://rafal42.github.io/minesweeper-react-typescript",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
