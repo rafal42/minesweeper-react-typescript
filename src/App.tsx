@@ -56,6 +56,7 @@ class App extends React.Component<{}, {board: IField[][], flagsLeft: number, mou
         <div id="controls">
           <span>Flags: {this.state.flagsLeft}</span>
           <button onClick={this.boundMethods.restart}>Restart</button>
+          <div>Left-click to open, spacebar while hovering to place a flag.</div>
         </div>
         <div id="fields-container">
           {this.state.board.map((row, rowIdx) =>
