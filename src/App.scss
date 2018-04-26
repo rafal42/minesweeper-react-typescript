@@ -7,9 +7,14 @@
   flex-flow: column;
 }
 
+#root > * {
+  display: flex;
+  justify-content: center;
+  margin: 10px auto;
+}
+
 #controls {
   display: flex;
-  margin: 20px auto;
   justify-content: center;
 
   & > * {
