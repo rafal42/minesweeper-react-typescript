@@ -1,5 +1,5 @@
-import { BOMBS_COUNT } from '../.././constants';
-import { IField } from '../.././types';
+import { BOMBS_COUNT } from '.././constants';
+import { IField } from '.././types';
 import { getNeighborVectors, safeDeepAccess } from './utils';
 
 function buildField ({ onClick, x, y } : { onClick: (x: number, y: number) => void, x: number, y: number }) : IField {
@@ -22,7 +22,7 @@ function neighboringBombs(board: IField[][], x: number, y: number): number {
   }).length;
 }
 
-export const buildBoard = (onClick : () => void): IField[][] => {
+function buildBoard(onClick : () => void): IField[][] {
   const bf = (x: number, y: number) => buildField({ onClick, x, y });
   const fields =
     [...Array(20).keys()].map(
@@ -47,3 +47,5 @@ export const buildBoard = (onClick : () => void): IField[][] => {
 
   return fields;
 };
+
+export default buildBoard;

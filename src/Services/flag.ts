@@ -1,4 +1,4 @@
-import { IField, IVector2d } from '../.././types';
+import { IField, IVector2d } from '.././types';
 import { safeDeepAccess } from './utils';
 
 function getIndicesForPosition({ x, y } : IVector2d): IVector2d | undefined {
@@ -16,7 +16,7 @@ function getIndicesForPosition({ x, y } : IVector2d): IVector2d | undefined {
   return undefined;
 }
 
-export function flag(board: IField[][], mousePosition: IVector2d): { board: IField[][], flagCountDiff: number } {
+function flag(board: IField[][], mousePosition: IVector2d): { board: IField[][], flagCountDiff: number } {
   const indices = getIndicesForPosition(mousePosition);
   const buildResult = (resultBoard: IField[][], flagCountDiff = 0) => ({ board: resultBoard, flagCountDiff });
 
@@ -34,3 +34,5 @@ export function flag(board: IField[][], mousePosition: IVector2d): { board: IFie
 
   return buildResult(board);
 }
+
+export default flag;

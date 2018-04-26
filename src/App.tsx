@@ -1,10 +1,10 @@
 import * as React from 'react';
 import './App.css';
-import { buildBoard } from './components/Board/build';
-import { flag } from './components/Board/flag';
-import { open } from './components/Board/open';
 import Field from './components/Field/index';
 import { BOMBS_COUNT, KEYCODE_SPACEBAR } from './constants';
+import buildBoard from './Services/build';
+import flag from './Services/flag';
+import open from './Services/open';
 import { IField, IVector2d } from './types';
 
 class App extends React.Component<{}, {board: IField[][], flagsLeft: number, mousePosition: IVector2d}> {

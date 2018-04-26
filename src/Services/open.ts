@@ -1,8 +1,8 @@
 import { flatten } from 'lodash';
-import { IField } from '../.././types';
+import { IField } from '.././types';
 import { getNondiagonalNeighborVectors, safeDeepAccess } from './utils';
 
-export function getNeighborsToOpen(board: IField[][], x: number, y: number, visited: number[][] = [], deepCall = false): number[][] {
+function getNeighborsToOpen(board: IField[][], x: number, y: number, visited: number[][] = [], deepCall = false): number[][] {
   const neighborVectors = getNondiagonalNeighborVectors(x, y).filter(([ny, nx]) => {
     const ua = safeDeepAccess(board, ny, nx);
     return ua && !ua.hasBomb;
@@ -52,7 +52,7 @@ export function getNeighborsToOpen(board: IField[][], x: number, y: number, visi
   return result;
 }
 
-export function open(board: IField[][], x: number, y: number): IField[][] {
+function open(board: IField[][], x: number, y: number): IField[][] {
   const toOpen = getNeighborsToOpen(board, x, y, [], false);
 
   const boardCopy = Object.assign([], board);
@@ -62,3 +62,5 @@ export function open(board: IField[][], x: number, y: number): IField[][] {
 
   return boardCopy;
 }
+
+export default open;

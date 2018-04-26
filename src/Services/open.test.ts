@@ -1,10 +1,8 @@
-import {
-  getNeighborsToOpen
-} from './Board';
+import open from './open';
 
-describe('getNeighborsToOpen', () => {
+describe('open', () => {
   test('returns proper vectors', () => {
-    const b = [
+    const board = [
       [
         {
           x: 0,
@@ -341,11 +339,12 @@ describe('getNeighborsToOpen', () => {
           onClick: () => {}
         }
       ]
-    ]
+    ];
 
-    expect(getNeighborsToOpen(b, 0, 5)).toEqual([
-      [5, 0],
-      [5, 1]
-    ]);
+    const expectedBoard = Object.assign([], board);
+    expectedBoard[5][0].isOpen = true;
+    expectedBoard[5][1].isOpen = true;
+
+    expect(open(board, 0, 5)).toEqual(expectedBoard);
   })
 })
